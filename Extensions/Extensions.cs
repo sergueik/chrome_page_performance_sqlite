@@ -73,9 +73,9 @@ if (ua.match(/PhantomJS/)) {
             cnt = 0;
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
-            wait.Until(dummy =>
+            wait.Until(o =>
             {
-                string result = driver.Execute<String>("return document.readyState").ToString();
+                string result = o.Execute<String>("return document.readyState").ToString();
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 Console.Error.WriteLine(String.Format("cnt = {0}", cnt));
                 cnt++;
@@ -91,9 +91,9 @@ if (ua.match(/PhantomJS/)) {
                                           RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
-            wait.Until(dummy =>
+            wait.Until(o =>
             {
-                string result = driver.Execute<String>("return document.readyState").ToString();
+                string result = o.Execute<String>("return document.readyState").ToString();
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 cnt++;
                 return ((state_regex.IsMatch(result) || cnt > max_cnt));
