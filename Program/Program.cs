@@ -23,7 +23,8 @@ namespace WebTester
         private static IWebDriver selenium_driver;
         private static string step_url = "http://www.carnival.com/";
         private static string[] expected_states = { "interactive", "complete" };
-        private static int max_cnt = 10;
+        // unused 
+        // private static int max_cnt = 10;
         private static string tableName = "";
         private static string dataFolderPath;
         private static string database;
@@ -91,7 +92,6 @@ namespace WebTester
         }
         public static void Main(string[] args)
         {
-
             dataFolderPath = Directory.GetCurrentDirectory();
             database = String.Format("{0}\\data.db", dataFolderPath);
             dataSource = "data source=" + database;
