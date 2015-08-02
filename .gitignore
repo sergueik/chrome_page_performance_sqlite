@@ -1,0 +1,9 @@
+**/*.exe
+**/*.dll
+**/*.zip
+**/*jar
+**/bin/**
+**/obj/**
+**/*.suo
+**/.nuget
+**/packages/**
