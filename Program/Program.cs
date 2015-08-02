@@ -55,7 +55,8 @@ namespace WebTester
         public void Sample()
         {
             selenium_driver.Navigate().GoToUrl(step_url);
-            selenium_driver.WaitDocumentReadyState(expected_states[0]);
+           // selenium_driver.WaitDocumentReadyState(expected_states[0]);
+            selenium_driver.WaitJqueryInActive();
             List<Dictionary<String, String>> result = selenium_driver.Performance();
             var dic = new Dictionary<string, object>();
 
@@ -109,7 +110,11 @@ namespace WebTester
             selenium_driver.Manage().Timeouts().ImplicitlyWait(new TimeSpan(0, 0, 30));
 
             selenium_driver.Navigate().GoToUrl(step_url);
+            // 
+            // selenium_driver.WaitJqueryInActive();
+            // selenium_driver.WaitDocumentReadyState(expected_states[0]);
             selenium_driver.WaitDocumentReadyState(expected_states);
+            
             List<Dictionary<String, String>> result = selenium_driver.Performance();
             var dic = new Dictionary<string, object>();
 

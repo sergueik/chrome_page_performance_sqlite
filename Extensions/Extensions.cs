@@ -31,7 +31,7 @@ namespace WebTester
             // PhantomJS does not have anything
             // System.InvalidOperationException: {"errorMessage":"undefined is not a constructor..
 
-            string performance_script = @"
+            string script = @"
 var ua = window.navigator.userAgent;
 if (ua.match(/PhantomJS/)) {
     return [{}];
@@ -52,7 +52,7 @@ if (ua.match(/PhantomJS/)) {
 }
 ";
             List<Dictionary<String, String>> result = new List<Dictionary<string, string>>();
-            IEnumerable<Object> raw_data = driver.Execute<IEnumerable<Object>>(performance_script);
+            IEnumerable<Object> raw_data = driver.Execute<IEnumerable<Object>>(script);
 
             foreach (var element in (IEnumerable<Object>)raw_data)
             {
@@ -69,18 +69,46 @@ if (ua.match(/PhantomJS/)) {
             return result;
         }
 
-        public static void WaitDocumentReadyState(this IWebDriver driver, string expected_state, int max_cnt = 10)
+        public static void WaitJqueryInActive(this IWebDriver driver, int max_cnt = 10)
         {
+	
             cnt = 0;
+            // https://www.linkedin.com/grp/post/961927-6024383820957040643
+            string script = @"
+if (window.jQuery) {
+    // jQuery is loaded
+    return jQuery.active;
+} else {
+    // jQuery is not loaded
+    return -1;
+}" ;
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
             wait.Until(o =>
             {
-                string result = o.Execute<String>("return document.readyState").ToString();
+                       	Int64 result = o.Execute<Int64>(script);
+                cnt++;
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 Console.Error.WriteLine(String.Format("cnt = {0}", cnt));
                 cnt++;
-                // TODO: match
+                return ((result.Equals(0) || cnt > max_cnt));
+            });
+        }
+
+
+        public static void WaitDocumentReadyState(this IWebDriver driver, string expected_state, int max_cnt = 10)
+        {
+            cnt = 0;
+            string script = "return document.readyState";
+
+            var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
+            wait.PollingInterval = TimeSpan.FromSeconds(0.50);
+            wait.Until(o =>
+            {
+                string result = o.Execute<String>(script);
+                Console.Error.WriteLine(String.Format("result = {0}", result));
+                Console.Error.WriteLine(String.Format("cnt = {0}", cnt));
+                cnt++;
                 return ((result.Equals(expected_state) || cnt > max_cnt));
             });
         }
@@ -88,13 +116,14 @@ if (ua.match(/PhantomJS/)) {
         public static void WaitDocumentReadyState(this IWebDriver driver, string[] expected_states, int max_cnt = 10)
         {
             cnt = 0;
+            string script = "return document.readyState";
             Regex state_regex = new Regex(String.Join("", "(?:", String.Join("|", expected_states), ")"),
                                           RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
             wait.Until(o =>
             {
-                string result = o.Execute<String>("return document.readyState").ToString();
+                string result = o.Execute<String>(script);                
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 cnt++;
                 return ((state_regex.IsMatch(result) || cnt > max_cnt));
