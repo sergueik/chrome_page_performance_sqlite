@@ -71,7 +71,7 @@ if (ua.match(/PhantomJS/)) {
 
         public static void WaitJqueryInActive(this IWebDriver driver, int max_cnt = 10)
         {
-	
+
             cnt = 0;
             // https://www.linkedin.com/grp/post/961927-6024383820957040643
             string script = @"
@@ -81,12 +81,13 @@ if (window.jQuery) {
 } else {
     // jQuery is not loaded
     return -1;
-}" ;
+}
+";
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
             wait.Until(o =>
             {
-                       	Int64 result = o.Execute<Int64>(script);
+                Int64 result = o.Execute<Int64>(script);
                 cnt++;
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 Console.Error.WriteLine(String.Format("cnt = {0}", cnt));
@@ -123,7 +124,7 @@ if (window.jQuery) {
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
             wait.Until(o =>
             {
-                string result = o.Execute<String>(script);                
+                string result = o.Execute<String>(script);
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 cnt++;
                 return ((state_regex.IsMatch(result) || cnt > max_cnt));

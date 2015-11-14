@@ -29,8 +29,9 @@ namespace WebTester
         private static string dataFolderPath;
         private static string database;
         private static string dataSource;
-
-
+        private static Object forever ;
+        private static Boolean waiting = false;
+        
         [TestInitialize]
         public void Initialize()
         {
@@ -39,7 +40,8 @@ namespace WebTester
             dataSource = "data source=" + database;
             tableName = "product";
             createTable();
-            selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+            // selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+            selenium_driver = new ChromeDriver();
             selenium_driver.Manage().Timeouts().ImplicitlyWait(new TimeSpan(0, 0, 30));
         }
 
@@ -55,7 +57,7 @@ namespace WebTester
         public void Sample()
         {
             selenium_driver.Navigate().GoToUrl(step_url);
-           // selenium_driver.WaitDocumentReadyState(expected_states[0]);
+            // selenium_driver.WaitDocumentReadyState(expected_states[0]);
             selenium_driver.WaitJqueryInActive();
             List<Dictionary<String, String>> result = selenium_driver.Performance();
             var dic = new Dictionary<string, object>();
@@ -101,10 +103,10 @@ namespace WebTester
             Console.WriteLine("Starting..");
             // TestConnection();
             createTable();
-            // selenium_driver = new ChromeDriver();
+            selenium_driver = new ChromeDriver();
             // ActiveState Remote::Selenium:Driver 
             // selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Firefox());
-            selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+            // selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
             // string phantomjs_executable_folder = @"C:\tools\phantomjs-2.0.0\bin";
             // selenium_driver = new PhantomJSDriver(phantomjs_executable_folder);
             selenium_driver.Manage().Timeouts().ImplicitlyWait(new TimeSpan(0, 0, 30));
@@ -114,7 +116,7 @@ namespace WebTester
             // selenium_driver.WaitJqueryInActive();
             // selenium_driver.WaitDocumentReadyState(expected_states[0]);
             selenium_driver.WaitDocumentReadyState(expected_states);
-            
+
             List<Dictionary<String, String>> result = selenium_driver.Performance();
             var dic = new Dictionary<string, object>();
 
@@ -123,13 +125,9 @@ namespace WebTester
                 dic["caption"] = "dummy";
                 foreach (string key in row.Keys)
                 {
-
-
                     if (Regex.IsMatch(key, "(name|duration)"))
                     {
-
                         Console.Error.WriteLine(key + " " + row[key]);
-
                         if (key.IndexOf("duration") > -1)
                         {
                             dic[key] = (Double)Double.Parse(row[key]);
@@ -147,6 +145,20 @@ namespace WebTester
                     dic[key] = null;
                 }
                 Console.Error.WriteLine("");
+            }
+            
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
+            
+            forever = new Object();
+             lock (forever)
+            {
+            waiting = true;
+             }
+            while (waiting){
+            // lock (forever)
+            //{
+            //    System.Threading.Monitor.Wait(forever);
+            //}
             }
             if (selenium_driver != null)
                 selenium_driver.Close();
@@ -197,5 +209,14 @@ namespace WebTester
                 }
             }
         }
+         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            Console.WriteLine("Stop.");
+            
+            System.Threading.Thread.Sleep(1);
+               waiting = false;
+               // System.Threading.Monitor.Exit(forever);
+        }
+
     }
 }
