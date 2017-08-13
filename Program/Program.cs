@@ -11,7 +11,7 @@ using System.IO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.PhantomJS;
+using OpenQA.Selenium.Support.UI;
 
 namespace WebTester
 {
@@ -21,17 +21,19 @@ namespace WebTester
     {
         private static string hub_url = "http://localhost:4444/wd/hub";
         private static IWebDriver selenium_driver;
-        private static string step_url = "http://www.carnival.com/";
+        private static string baseURL = "http://www.carnival.com/";
         private static string[] expected_states = { "interactive", "complete" };
-        // unused 
+        // unused
         // private static int max_cnt = 10;
         private static string tableName = "";
         private static string dataFolderPath;
         private static string database;
         private static string dataSource;
-        private static Object forever ;
+        private static Object forever;
         private static Boolean waiting = false;
-        
+        private static Boolean useRemoteDriver = false;
+        private static Boolean useHeadlessDriver = true;
+
         [TestInitialize]
         public void Initialize()
         {
@@ -40,61 +42,56 @@ namespace WebTester
             dataSource = "data source=" + database;
             tableName = "product";
             createTable();
-            // selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
-            selenium_driver = new ChromeDriver();
-            selenium_driver.Manage().Timeouts().ImplicitlyWait(new TimeSpan(0, 0, 30));
+            if (useRemoteDriver) {
+                selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+            } else {
+                if (useHeadlessDriver) {
+                    var chromeOptions = new ChromeOptions();
+                    chromeOptions.AddArgument("--headless");
+                    selenium_driver = new ChromeDriver(chromeOptions);
+                } else {
+                    selenium_driver = new ChromeDriver();
+                }
+            }
+            selenium_driver.Manage().Timeouts().ImplicitWait = new System.TimeSpan(0, 0, 30);
         }
 
         [TestCleanup]
-        public void Cleanup()
-        {
+        public void Cleanup() {
             if (selenium_driver != null)
                 selenium_driver.Close();
         }
 
         [TestMethod]
         // [ExpectedException(typeof(NoSuchElementException))]
-        public void Sample()
-        {
-            selenium_driver.Navigate().GoToUrl(step_url);
-            // selenium_driver.WaitDocumentReadyState(expected_states[0]);
-            selenium_driver.WaitJqueryInActive();
-            List<Dictionary<String, String>> result = selenium_driver.Performance();
-            var dic = new Dictionary<string, object>();
+        public void Sample() {
+			selenium_driver.Navigate().GoToUrl(baseURL);
+			// selenium_driver.WaitDocumentReadyState(expected_states[0]);
+			selenium_driver.WaitJqueryInActive();
+			List<Dictionary<String, String>> result = selenium_driver.Performance();
+			var dic = new Dictionary<string, object>();
 
-            foreach (var row in result)
-            {
-                dic["caption"] = "dummy";
-                foreach (string key in row.Keys)
-                {
+			foreach (var row in result) {
+				dic["caption"] = "dummy";
+				foreach (string key in row.Keys) {
+					if (Regex.IsMatch(key, "(name|duration)")) {
+						Console.Error.WriteLine(key + " " + row[key]);
+						if (key.IndexOf("duration") > -1) {
+							dic[key] = (Double)Double.Parse(row[key]);
+						} else {
+							dic[key] = (String)row[key];
+						}
+					}
+				}
+				insert(dic);
 
-
-                    if (Regex.IsMatch(key, "(name|duration)"))
-                    {
-
-                        Console.Error.WriteLine(key + " " + row[key]);
-
-                        if (key.IndexOf("duration") > -1)
-                        {
-                            dic[key] = (Double)Double.Parse(row[key]);
-                        }
-                        else
-                        {
-                            dic[key] = (String)row[key];
-                        }
-                    }
-                }
-                insert(dic);
-
-                foreach (string key in dic.Keys.ToArray())
-                {
-                    dic[key] = null;
-                }
-                Console.Error.WriteLine("");
-            }
-        }
-        public static void Main(string[] args)
-        {
+				foreach (string key in dic.Keys.ToArray()) {
+					dic[key] = null;
+				}
+				Console.Error.WriteLine("");
+			}
+		}
+        public static void Main(string[] args) {
             dataFolderPath = Directory.GetCurrentDirectory();
             database = String.Format("{0}\\data.db", dataFolderPath);
             dataSource = "data source=" + database;
@@ -103,16 +100,20 @@ namespace WebTester
             Console.WriteLine("Starting..");
             // TestConnection();
             createTable();
-            selenium_driver = new ChromeDriver();
-            // ActiveState Remote::Selenium:Driver 
-            // selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Firefox());
-            // selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
-            // string phantomjs_executable_folder = @"C:\tools\phantomjs-2.0.0\bin";
-            // selenium_driver = new PhantomJSDriver(phantomjs_executable_folder);
-            selenium_driver.Manage().Timeouts().ImplicitlyWait(new TimeSpan(0, 0, 30));
+            if (useRemoteDriver) {
+                selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+            } else  {
+                if (useHeadlessDriver)  {
+                    var chromeOptions = new ChromeOptions();
+                    chromeOptions.AddArgument("--headless");
+                    selenium_driver = new ChromeDriver(chromeOptions);
+                } else {
+                    selenium_driver = new ChromeDriver();
+                }
+            }
+            selenium_driver.Manage().Timeouts().ImplicitWait = new System.TimeSpan(0, 0, 30);
 
-            selenium_driver.Navigate().GoToUrl(step_url);
-            // 
+            selenium_driver.Navigate().GoToUrl(baseURL);
             // selenium_driver.WaitJqueryInActive();
             // selenium_driver.WaitDocumentReadyState(expected_states[0]);
             selenium_driver.WaitDocumentReadyState(expected_states);
@@ -120,45 +121,37 @@ namespace WebTester
             List<Dictionary<String, String>> result = selenium_driver.Performance();
             var dic = new Dictionary<string, object>();
 
-            foreach (var row in result)
-            {
+            foreach (var row in result) {
                 dic["caption"] = "dummy";
-                foreach (string key in row.Keys)
-                {
-                    if (Regex.IsMatch(key, "(name|duration)"))
-                    {
+                foreach (string key in row.Keys) {
+                    if (Regex.IsMatch(key, "(name|duration)")) {
                         Console.Error.WriteLine(key + " " + row[key]);
-                        if (key.IndexOf("duration") > -1)
-                        {
+                        if (key.IndexOf("duration") > -1) {
                             dic[key] = (Double)Double.Parse(row[key]);
-                        }
-                        else
-                        {
+                        } else {
                             dic[key] = (String)row[key];
                         }
                     }
                 }
                 insert(dic);
 
-                foreach (string key in dic.Keys.ToArray())
-                {
+                foreach (string key in dic.Keys.ToArray()) {
                     dic[key] = null;
                 }
                 Console.Error.WriteLine("");
             }
-            
+
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
-            
+
             forever = new Object();
-             lock (forever)
-            {
-            waiting = true;
-             }
-            while (waiting){
-            // lock (forever)
-            //{
-            //    System.Threading.Monitor.Wait(forever);
-            //}
+            lock (forever) {
+                waiting = true;
+            }
+            while (waiting) {
+                // lock (forever)
+                //{
+                //    System.Threading.Monitor.Wait(forever);
+                //}
             }
             if (selenium_driver != null)
                 selenium_driver.Close();
@@ -166,12 +159,9 @@ namespace WebTester
 
         public static bool insert(Dictionary<string, object> dic)
         {
-            try
-            {
-                using (SQLiteConnection conn = new SQLiteConnection(dataSource))
-                {
-                    using (SQLiteCommand cmd = new SQLiteCommand())
-                    {
+            try {
+                using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
+                    using (SQLiteCommand cmd = new SQLiteCommand()) {
                         cmd.Connection = conn;
                         conn.Open();
                         SQLiteHelper sh = new SQLiteHelper(cmd);
@@ -181,19 +171,15 @@ namespace WebTester
                     }
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Console.Error.WriteLine(ex.ToString());
                 return false;
             }
         }
 
-        public static void createTable()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection(dataSource))
-            {
-                using (SQLiteCommand cmd = new SQLiteCommand())
-                {
+        public static void createTable() {
+            using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
+                using (SQLiteCommand cmd = new SQLiteCommand()) {
                     cmd.Connection = conn;
                     conn.Open();
                     SQLiteHelper sh = new SQLiteHelper(cmd);
@@ -209,13 +195,11 @@ namespace WebTester
                 }
             }
         }
-         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
-        {
+        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
             Console.WriteLine("Stop.");
-            
             System.Threading.Thread.Sleep(1);
-               waiting = false;
-               // System.Threading.Monitor.Exit(forever);
+            waiting = false;
+            // System.Threading.Monitor.Exit(forever);
         }
 
     }

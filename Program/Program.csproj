@@ -112,10 +112,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel.Activities" />
     <Reference Include="WebDriver">
-      <HintPath>..\packages\Selenium.WebDriver.2.53.0\lib\net40\WebDriver.dll</HintPath>
+      <HintPath>..\packages\Selenium.WebDriver.3.4.0\lib\net40\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver.Support">
-      <HintPath>..\packages\Selenium.Support.2.53.0\lib\net40\WebDriver.Support.dll</HintPath>
+      <HintPath>..\packages\Selenium.Support.3.4.0\lib\net40\WebDriver.Support.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data" />
@@ -157,8 +157,10 @@
 
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.105.1\build\net40\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.31.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
   </Target>
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.105.1\build\net40\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.31.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
   </Target>
 </Project>

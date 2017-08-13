@@ -9,8 +9,6 @@ using Microsoft.Activities.UnitTesting;
 using System.IO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.PhantomJS;
 
 namespace WebTester
 {
