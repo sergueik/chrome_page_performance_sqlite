@@ -10,22 +10,18 @@ using System.IO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace WebTester
-{
-    public static class Extensions
-    {
+namespace WebTester {
+    public static class Extensions {
         static int cnt = 0;
 
-        public static T Execute<T>(this IWebDriver driver, string script)
-        {
+        public static T Execute<T>(this IWebDriver driver, string script) {
             return (T)((IJavaScriptExecutor)driver).ExecuteScript(script);
         }
 
-        public static List<Dictionary<String, String>> Performance(this IWebDriver driver)
-        {
-            // NOTE: this code is highly browser-specific: 
-            // Chrome has performance.getEntries 
-            // FF only has performance.timing 
+        public static List<Dictionary<String, String>> Performance(this IWebDriver driver) {
+            // NOTE: this code is highly browser-specific:
+            // Chrome has performance.getEntries
+            // FF only has performance.timing
             // PhantomJS does not have anything
             // System.InvalidOperationException: {"errorMessage":"undefined is not a constructor..
 
@@ -41,9 +37,11 @@ if (ua.match(/PhantomJS/)) {
         window.webkitPerformance || {};
 
     if (ua.match(/Chrome/)) {
+	/* provides page element-granula inforation */
         var network = performance.getEntries() || {};
         return network;
     } else {
+	    /* Firefox and Internet Explorer provide load times of the whole page only */
         var timings = performance.timing || {};
         return [timings];
     }
@@ -52,12 +50,10 @@ if (ua.match(/PhantomJS/)) {
             List<Dictionary<String, String>> result = new List<Dictionary<string, string>>();
             IEnumerable<Object> raw_data = driver.Execute<IEnumerable<Object>>(script);
 
-            foreach (var element in (IEnumerable<Object>)raw_data)
-            {
+            foreach (var element in (IEnumerable<Object>)raw_data) {
                 Dictionary<String, String> row = new Dictionary<String, String>();
                 Dictionary<String, Object> dic = (Dictionary<String, Object>)element;
-                foreach (object key in dic.Keys)
-                {
+                foreach (object key in dic.Keys) {
                     Object val = null;
                     if (!dic.TryGetValue(key.ToString(), out val)) { val = ""; }
                     row.Add(key.ToString(), val.ToString());
@@ -67,8 +63,7 @@ if (ua.match(/PhantomJS/)) {
             return result;
         }
 
-        public static void WaitJqueryInActive(this IWebDriver driver, int max_cnt = 10)
-        {
+        public static void WaitJqueryInActive(this IWebDriver driver, int max_cnt = 10) {
 
             cnt = 0;
             // https://www.linkedin.com/grp/post/961927-6024383820957040643
@@ -83,8 +78,7 @@ if (window.jQuery) {
 ";
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
-            wait.Until(o =>
-            {
+            wait.Until(o => {
                 Int64 result = o.Execute<Int64>(script);
                 cnt++;
                 Console.Error.WriteLine(String.Format("result = {0}", result));
@@ -95,8 +89,7 @@ if (window.jQuery) {
         }
 
 
-        public static void WaitDocumentReadyState(this IWebDriver driver, string expected_state, int max_cnt = 10)
-        {
+        public static void WaitDocumentReadyState(this IWebDriver driver, string expected_state, int max_cnt = 10) {
             cnt = 0;
             string script = "return document.readyState";
 
@@ -112,16 +105,14 @@ if (window.jQuery) {
             });
         }
 
-        public static void WaitDocumentReadyState(this IWebDriver driver, string[] expected_states, int max_cnt = 10)
-        {
+        public static void WaitDocumentReadyState(this IWebDriver driver, string[] expected_states, int max_cnt = 10) {
             cnt = 0;
             string script = "return document.readyState";
             Regex state_regex = new Regex(String.Join("", "(?:", String.Join("|", expected_states), ")"),
                                           RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
             var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
             wait.PollingInterval = TimeSpan.FromSeconds(0.50);
-            wait.Until(o =>
-            {
+            wait.Until(o => {
                 string result = o.Execute<String>(script);
                 Console.Error.WriteLine(String.Format("result = {0}", result));
                 cnt++;
@@ -129,5 +120,4 @@ if (window.jQuery) {
             });
         }
     }
-
 }

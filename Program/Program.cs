@@ -13,8 +13,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
-namespace WebTester
-{
+namespace WebTester {
 	[TestClass]
 	// [DeploymentItem(@"x86\SQLite.Interop.dll", "x86")] 
     public class Monitor {
@@ -164,8 +163,7 @@ namespace WebTester
 			selenium_driver.Quit();
 		}
 
-		public static bool insert(Dictionary<string, object> dic)
-		{
+		public static bool insert(Dictionary<string, object> dic) {
 			try {
 				using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
 					using (SQLiteCommand cmd = new SQLiteCommand()) {
