@@ -13,29 +13,66 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
-namespace WebTester {
+namespace WebTester
+{
 	[TestClass]
 	// [DeploymentItem(@"x86\SQLite.Interop.dll", "x86")] 
-    public class Monitor {
+    public class Monitor
+	{
+		
+		
 		private static string hub_url = "http://localhost:4444/wd/hub";
+		public static string HubURL {
+			get { return hub_url; }
+			set { hub_url = value; }
+		}
 		private static IWebDriver selenium_driver;
 		private static string baseURL = "http://www.carnival.com/";
+		
+		public static string BaseURL {
+			get { return baseURL; }
+			set { baseURL = value; }
+		}
+
+		private static string databaseName = "data.db";
+		
+		public static string DatabaseName {
+			get { return databaseName; }
+			set { databaseName = value; }
+		}
+		private static string dataFolderPath = Directory.GetCurrentDirectory();
+		
+		public static string DataFolderPath {
+			get { return dataFolderPath; }
+			set { dataFolderPath = value; }
+		}
+
+
 		private static string[] expected_states = { "interactive", "complete" };
 		// unused
 		// private static int max_cnt = 10;
 		private static string tableName = "";
-		private static string dataFolderPath;
 		private static string database;
 		private static string dataSource;
 		private static Object forever;
 		private static Boolean waiting = false;
 		private static Boolean useRemoteDriver = false;
+		
+		public static Boolean UseRemoteDriver {
+			get { return useRemoteDriver; }
+			set { useRemoteDriver = value; }
+		}
 		private static Boolean useHeadlessDriver = true;
 
+		public static Boolean UseHeadlessDriver {
+			get { return useHeadlessDriver; }
+			set { useHeadlessDriver = value; }
+		}
+		
 		[TestInitialize]
-		public void Initialize() {
-			dataFolderPath = Directory.GetCurrentDirectory();
-			database = String.Format("{0}\\data.db", dataFolderPath);
+		public void Initialize()
+		{
+			database = String.Format(@"{0}\{1}", dataFolderPath, databaseName);
 			dataSource = "data source=" + database;
 			tableName = "product";
 			createTable();
@@ -54,14 +91,16 @@ namespace WebTester {
 		}
 
 		[TestCleanup]
-		public void Cleanup() {
+		public void Cleanup()
+		{
 			if (selenium_driver != null)
 				selenium_driver.Close();
 		}
 
 		[TestMethod]
 		// [ExpectedException(typeof(NoSuchElementException))]
-        public void Sample() {
+        public void Sample()
+		{
 			selenium_driver.Navigate().GoToUrl(baseURL);
 			// selenium_driver.WaitDocumentReadyState(expected_states[0]);
 			selenium_driver.WaitJqueryInActive();
@@ -88,7 +127,8 @@ namespace WebTester {
 				Console.Error.WriteLine("");
 			}
 		}
-		public static void Main(string[] args) {
+		public static void Main(string[] args)
+		{
 			dataFolderPath = Directory.GetCurrentDirectory();
 			database = String.Format("{0}\\data.db", dataFolderPath);
 			dataSource = "data source=" + database;
@@ -163,7 +203,8 @@ namespace WebTester {
 			selenium_driver.Quit();
 		}
 
-		public static bool insert(Dictionary<string, object> dic) {
+		public static bool insert(Dictionary<string, object> dic)
+		{
 			try {
 				using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
 					using (SQLiteCommand cmd = new SQLiteCommand()) {
@@ -181,7 +222,8 @@ namespace WebTester {
 			}
 		}
 
-		public static void createTable() {
+		public static void createTable()
+		{
 			using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
 				using (SQLiteCommand cmd = new SQLiteCommand()) {
 					cmd.Connection = conn;
@@ -201,7 +243,8 @@ namespace WebTester {
 		}
 		// https://stackoverflow.com/questions/203246/how-can-i-keep-a-console-open-until-cancelkeypress-event-is-fired
 		// https://msdn.microsoft.com/en-us/library/system.console.cancelkeypress.aspx
-		static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
+		static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+		{
 			Console.WriteLine("Stopping");
 			System.Threading.Thread.Sleep(1);
 			e.Cancel = true;
