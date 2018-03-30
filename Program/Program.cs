@@ -16,11 +16,9 @@ using OpenQA.Selenium.Support.UI;
 namespace WebTester
 {
 	[TestClass]
-	// [DeploymentItem(@"x86\SQLite.Interop.dll", "x86")] 
-    public class Monitor
+	// [DeploymentItem(@"x86\SQLite.Interop.dll", "x86")]
+	public class Monitor
 	{
-		
-		
 		private static string hub_url = "http://localhost:4444/wd/hub";
 		public static string HubURL {
 			get { return hub_url; }
@@ -28,20 +26,20 @@ namespace WebTester
 		}
 		private static IWebDriver selenium_driver;
 		private static string baseURL = "http://www.carnival.com/";
-		
+
 		public static string BaseURL {
 			get { return baseURL; }
 			set { baseURL = value; }
 		}
 
 		private static string databaseName = "data.db";
-		
+
 		public static string DatabaseName {
 			get { return databaseName; }
 			set { databaseName = value; }
 		}
 		private static string dataFolderPath = Directory.GetCurrentDirectory();
-		
+
 		public static string DataFolderPath {
 			get { return dataFolderPath; }
 			set { dataFolderPath = value; }
@@ -57,7 +55,7 @@ namespace WebTester
 		private static Object forever;
 		private static Boolean waiting = false;
 		private static Boolean useRemoteDriver = false;
-		
+
 		public static Boolean UseRemoteDriver {
 			get { return useRemoteDriver; }
 			set { useRemoteDriver = value; }
@@ -68,7 +66,7 @@ namespace WebTester
 			get { return useHeadlessDriver; }
 			set { useHeadlessDriver = value; }
 		}
-		
+
 		[TestInitialize]
 		public void Initialize()
 		{
@@ -99,7 +97,7 @@ namespace WebTester
 
 		[TestMethod]
 		// [ExpectedException(typeof(NoSuchElementException))]
-        public void Sample()
+		public void Sample()
 		{
 			selenium_driver.Navigate().GoToUrl(baseURL);
 			// selenium_driver.WaitDocumentReadyState(expected_states[0]);
@@ -232,7 +230,7 @@ namespace WebTester
 					sh.DropTable(tableName);
 
 					SQLiteTable tb = new SQLiteTable(tableName);
-					tb.Columns.Add(new SQLiteColumn("id", true)); // auto increment 
+					tb.Columns.Add(new SQLiteColumn("id", true)); // auto increment
 					tb.Columns.Add(new SQLiteColumn("caption"));
 					tb.Columns.Add(new SQLiteColumn("name"));
 					tb.Columns.Add(new SQLiteColumn("duration", ColType.Decimal));
