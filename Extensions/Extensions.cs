@@ -116,7 +116,7 @@ if (ua.match(/PhantomJS/)) {
 			var result = new Dictionary<String, String>();
 			string key = null;
 			string val = null;
-			regex = new Regex(@"""(?<key>[^""]+)"" *: *""(?<val>.*)""", 
+			regex = new Regex(@"""(?<key>[^""]+)"" *: *""?(?<val>.*)""?", 
 				RegexOptions.IgnoreCase | RegexOptions.Compiled);
 			matches = regex.Matches(payload);
 			foreach (Match match in matches) {
