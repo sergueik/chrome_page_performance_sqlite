@@ -31,7 +31,10 @@ The following Javascript is run to collect performance results while the page is
     window.webkitPerformance
     ).getEntries()
 ```
-The script is invoked when browser reports certain `document.readyState`.
+Alternaively the more advanced `timing.js` script from [Addy Osmani's repository](https://github.com/addyosmani/timing.js/blob/master/timing.js
+) is called, and the results are deserialized into a `List<Dictionary<String, String>>` either implicitly by cast of directly parsing of the `JSON.stringify()` returned value.
+
+The script is invoked when browser reports certain `document.readyState` events that can be used to assume that page was fully loaded.
 
 ![data.db](https://github.com/sergueik/chrome_page_performance_sqlite/blob/master/screenshots/data.png)
 

@@ -2,7 +2,6 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -86,13 +85,13 @@ if (ua.match(/PhantomJS/)) {
 		private static string performanceNetworkScriptNoStringify = String.Format(
 		
 			                                                            "{0}\nreturn window.timing.getNetwork();", libraryScript);
-		/*				private static Boolean stringify;
+		private static Boolean stringify;
 
 		public static Boolean Stringify {
 			get { return stringify; }
 			set { stringify = value; }
 		}
-*/
+
 		public static List<String> SplitDataRows(string payload, string matchPattern, int maxRows = 0)
 		{
 			List<String> result = new List<String>();
@@ -108,6 +107,32 @@ if (ua.match(/PhantomJS/)) {
 					}
 					result.Add(arrItem);
 				}
+			}
+			return result;
+		}
+
+		public static Dictionary<String, String> FindData(this string payload)
+		{
+			var result = new Dictionary<String, String>();
+			string key = null;
+			string val = null;
+			regex = new Regex(@"""(?<key>[^""]+)"" *: *""(?<val>.*)""", 
+				RegexOptions.IgnoreCase | RegexOptions.Compiled);
+			matches = regex.Matches(payload);
+			foreach (Match match in matches) {
+				if (match.Length != 0) {
+					foreach (Capture capture in match.Groups["key"].Captures) {
+						if (key == null) {
+							key = capture.ToString();
+						}
+					}
+					foreach (Capture capture in match.Groups["val"].Captures) {
+						if (val == null) {
+							val = capture.ToString();
+						}
+					}
+				}
+				result.Add(key, val);
 			}
 			return result;
 		}
@@ -128,7 +153,7 @@ if (ua.match(/PhantomJS/)) {
 			String script = oldScript;
 			List<Dictionary<String, String>> result = new List<Dictionary<string, string>>();
 			var row = new Dictionary<String, String>();
-			var dic = new Dictionary<String, Object>();
+			
 			if (stringify) { 
 				script = performanceNetworkScript;
 				// TODO: parse json
@@ -143,24 +168,21 @@ if (ua.match(/PhantomJS/)) {
 				} catch (System.InvalidCastException e) {
 					Console.Error.WriteLine("Exception (ignored) :" + e.ToString());
 				}
-				int maxRows = 5;
+				int maxRows = 50;
 				if (rawData.Length > 0) { 
+					var dic = new Dictionary<String, String>();
 					List<String> rawDataRows = SplitDataRows(rawData, "(?<=\\}) *, *(?=\\{)", maxRows);
 					// List<Dictionary<String, String>> result2 = new List<Dictionary<string, string>>();
-					Regex columnRegex = new Regex(" *, *", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+					var columnRegex = new Regex(" *, *", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 					foreach (String rawDataRow in rawDataRows) {
 					
 						String[] columnsArray = Regex.Split(Regex.Replace(rawDataRow, "[\\]{}\\[]", ""), " *, *");
 						row = new Dictionary<String, String>();
+						dic = new Dictionary<String, String>();
 						foreach (String columnData in columnsArray) {
-							// TODO:  use matchers to prevent error with "name" column
-							if (!(columnData.Contains("\"name\":"))) {
-								String[] entryData = Regex.Split(columnData, " *: *");
-								try {
-									row.Add(Regex.Replace(entryData[0], "\"", ""), Regex.Replace(entryData[1], "\"", ""));
-								} catch (IndexOutOfRangeException e) { 
-									Console.WriteLine("Exception (ignored) in the entry: " + columnData);
-								}
+							dic = FindData(columnData);
+							foreach (String key in dic.Keys) {
+								row.Add(key, dic[key]);
 							}
 						}
 						result.Add(row);
@@ -174,9 +196,12 @@ if (ua.match(/PhantomJS/)) {
 				} catch (System.InvalidCastException e) {
 					Console.Error.WriteLine("Exception (ignored) :" + e.ToString());
 				}
+				
 				if (rawObject != null) {
+					var dic = new Dictionary<String, Object>();
 					foreach (var element in (IEnumerable<Object>)rawObject) {
 						row = new Dictionary<String, String>();
+						
 						dic = (Dictionary<String, Object>)element;
 						foreach (object key in dic.Keys) {
 							Object val = null;
@@ -239,8 +264,8 @@ if (window.jQuery) {
 		{
 			cnt = 0;
 			string script = "return document.readyState";
-			Regex state_regex = new Regex(String.Join("", "(?:", String.Join("|", expected_states), ")"),
-				                    RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+			var state_regex = new Regex(String.Join("", "(?:", String.Join("|", expected_states), ")"),
+				                  RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 			var wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(30.00));
 			wait.PollingInterval = TimeSpan.FromSeconds(0.50);
 			wait.Until(o => {

@@ -159,8 +159,8 @@ namespace WebTester
 			selenium_driver.WaitDocumentReadyState(expected_states);
 
 			// experimental - process JSON.stringify(timings)
-			// List<Dictionary<String, String>> result = selenium_driver.Performance(true);
-			List<Dictionary<String, String>> result = selenium_driver.Performance();
+			List<Dictionary<String, String>> result = selenium_driver.Performance(true);
+			// List<Dictionary<String, String>> result = selenium_driver.Performance();
 			var dic = new Dictionary<string, object>();
 
 			foreach (var row in result) {
