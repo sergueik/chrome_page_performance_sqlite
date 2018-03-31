@@ -1,6 +1,6 @@
-### Chrome Page Element Performance Collector
+### Info
 
-This application demonstrates collecting details of the web navigation from the Chrome browser.
+The __Chrome Page Element Performance Collector__ application demonstrates collecting details of the web navigation from the Chrome browser.
 It ws started before the [Navigation Timing API](https://w3c.github.io/perf-timing-primer/) has become the W2C standard published in October 2017,
 and support of [Navigational Timing](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_timing_API)
 and [User Timing API](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API) by Firefox browser was documented,
@@ -55,6 +55,9 @@ The following headers are selected to go to the SQLite database `data.db`:
 * [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]
 * GoDaddy page timing processing [page timing API](https://github.com/godaddy/timings) and [client API](https://github.com/godaddy/timings-client-py)
 * [Web Performance Timing API Chrome extention](https://github.com/GregM/performance-timing-google-chrome-extension), also published as Chrome extention # nllipdabkglnhmanndddgcihbcmjpfej
+
+### License
+This project is licensed under the terms of the MIT license.
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
