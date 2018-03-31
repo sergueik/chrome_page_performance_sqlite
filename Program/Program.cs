@@ -103,6 +103,9 @@ namespace WebTester
 			// selenium_driver.WaitDocumentReadyState(expected_states[0]);
 			selenium_driver.WaitJqueryInActive();
 			List<Dictionary<String, String>> result = selenium_driver.Performance();
+			// experimental - process JSON.stringify(timings)
+			// result = selenium_driver.Performance(true);
+			result = selenium_driver.Performance(false);
 			var dic = new Dictionary<string, object>();
 
 			foreach (var row in result) {
@@ -155,6 +158,8 @@ namespace WebTester
 			// selenium_driver.WaitDocumentReadyState(expected_states[0]);
 			selenium_driver.WaitDocumentReadyState(expected_states);
 
+			// experimental - process JSON.stringify(timings)
+			// List<Dictionary<String, String>> result = selenium_driver.Performance(true);
 			List<Dictionary<String, String>> result = selenium_driver.Performance();
 			var dic = new Dictionary<string, object>();
 
