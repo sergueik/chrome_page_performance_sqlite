@@ -11,10 +11,15 @@ using System.IO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 namespace WebTester
 {
 	public static class Extensions
 	{
+		private static bool useJSONLibrary = true;
+		private static bool useStrongTyped = true;
 		private static int cnt = 0;
 		private static Regex regex;
 		private static MatchCollection matches;
@@ -94,7 +99,7 @@ if (ua.match(/PhantomJS/)) {
 
 		public static List<String> SplitDataRows(string payload, string matchPattern, int maxRows = 0)
 		{
-			List<String> result = new List<String>();
+			var result = new List<String>();
 			String[] resultArray = { };
 			regex = new Regex(matchPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 			matches = regex.Matches(payload);
@@ -153,10 +158,10 @@ if (ua.match(/PhantomJS/)) {
 			String script = oldScript;
 			List<Dictionary<String, String>> result = new List<Dictionary<string, string>>();
 			var row = new Dictionary<String, String>();
+			var dic = new Dictionary<String, Object>();
 			
 			if (stringify) { 
 				script = performanceNetworkScript;
-				// TODO: parse json
 				// with old script,
 				// System.InvalidCastException: Unable to cast object of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Object]' to type 'System.String'.
 
@@ -169,8 +174,43 @@ if (ua.match(/PhantomJS/)) {
 					Console.Error.WriteLine("Exception (ignored) :" + e.ToString());
 				}
 				int maxRows = 50;
-				if (rawData.Length > 0) { 
-					var dic = new Dictionary<String, String>();
+				if (rawData.Length > 0) {
+					
+					if (useJSONLibrary) {
+						if (useStrongTyped) {
+							// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_JsonConvert.htm
+							var jsonNetworkTimingData = JsonConvert.DeserializeObject(rawData, typeof(List<NetworkTiming>)) as List<NetworkTiming>;
+							foreach (NetworkTiming rowNetworkTiming in jsonNetworkTimingData) {
+								Console.Error.WriteLine(rowNetworkTiming.ToString());
+							}
+						}
+						// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JArray.htm
+						JArray jsonData = JArray.Parse(rawData);
+						IEnumerator<JToken> jsonDataTokenEnumerator = jsonData.GetEnumerator();
+						JToken jsonToken;
+						while (jsonDataTokenEnumerator.MoveNext()) {
+							jsonToken = jsonDataTokenEnumerator.Current;
+							Console.Error.WriteLine(jsonToken.ToString());
+							try {
+								dic.Clear();
+								// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JToken.htm
+								dic = jsonToken.ToObject(typeof(Dictionary<String,Object>)) as Dictionary<String, Object>;
+							} catch (JsonReaderException e) {
+								// 
+							}
+							if (dic.Keys.Count > 0) {
+								row.Clear();
+								foreach (object key in dic.Keys) {
+									Object val = null;
+									if (!dic.TryGetValue(key.ToString(), out val)) {
+										val = "";
+									}
+									row.Add(key.ToString(), val.ToString());
+								}
+								result.Add(row);
+							}
+						}
+					}
 					List<String> rawDataRows = SplitDataRows(rawData, "(?<=\\}) *, *(?=\\{)", maxRows);
 					// List<Dictionary<String, String>> result2 = new List<Dictionary<string, string>>();
 					var columnRegex = new Regex(" *, *", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -178,11 +218,11 @@ if (ua.match(/PhantomJS/)) {
 					
 						String[] columnsArray = Regex.Split(Regex.Replace(rawDataRow, "[\\]{}\\[]", ""), " *, *");
 						row = new Dictionary<String, String>();
-						dic = new Dictionary<String, String>();
+						Dictionary<String, String> dic2 = new Dictionary<String, String>();
 						foreach (String columnData in columnsArray) {
-							dic = FindData(columnData);
-							foreach (String key in dic.Keys) {
-								row.Add(key, dic[key]);
+							dic2 = FindData(columnData);
+							foreach (String key in dic2.Keys) {
+								row.Add(key, dic2[key]);
 							}
 						}
 						result.Add(row);
@@ -198,7 +238,7 @@ if (ua.match(/PhantomJS/)) {
 				}
 				
 				if (rawObject != null) {
-					var dic = new Dictionary<String, Object>();
+					dic.Clear();
 					foreach (var element in (IEnumerable<Object>)rawObject) {
 						row = new Dictionary<String, String>();
 						
