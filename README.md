@@ -55,9 +55,14 @@ The following headers are selected to go to the SQLite database `data.db`:
 * [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]
 * GoDaddy page timing processing [page timing API](https://github.com/godaddy/timings) and [client API](https://github.com/godaddy/timings-client-py)
 * [Web Performance Timing API Chrome extention](https://github.com/GregM/performance-timing-google-chrome-extension), also published as Chrome extention # nllipdabkglnhmanndddgcihbcmjpfej
+* [CSV/Excel File Parser - A Revisit](https://www.codeproject.com/Articles/1238464/CSV-Excel-File-Parser-A-Revisitx`)
 
 ### License
 This project is licensed under the terms of the MIT license.
+### Change History
+
+  * version 1.1.x.x of the assembly is compiled with .net 4.5
+  * version 1.0.x.x is compiled with .net 4.0
 
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
