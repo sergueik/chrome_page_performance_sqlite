@@ -149,6 +149,9 @@
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
+    <ItemGroup>
+      <Content Include="Data\*.js"/>
+    </ItemGroup>
   </Target>
   -->
   <PropertyGroup>
@@ -167,9 +170,11 @@ exit 0
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.108.0\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
     <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.40.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\Data\timing.min.js" DestinationFolder="$(OutputPath)\Data" />
   </Target>
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.108.0\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
     <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.40.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\Data\timing.min.js" DestinationFolder="$(OutputPath)\Data" />
   </Target>
 </Project>

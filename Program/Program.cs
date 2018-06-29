@@ -8,6 +8,8 @@ using Microsoft.Activities.UnitTesting;
 using System.Data.SQLite;
 using SQLite.Utils;
 using System.IO;
+using System.Reflection;
+
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
@@ -32,7 +34,7 @@ namespace WebTester
 			set { baseURL = value; }
 		}
 
-		private static string databaseName = "data.db";
+		private static string databaseName = "performance.db";
 
 		public static string DatabaseName {
 			get { return databaseName; }
@@ -102,10 +104,11 @@ namespace WebTester
 			selenium_driver.Navigate().GoToUrl(baseURL);
 			// selenium_driver.WaitDocumentReadyState(expected_states[0]);
 			selenium_driver.WaitJqueryInActive();
-			List<Dictionary<String, String>> result = selenium_driver.Performance();
+			String performanceScript = GetScriptContent(@"Data\timing.min.js");
+			List<Dictionary<String, String>> result = selenium_driver.Performance(performanceScript);
 			// experimental - process JSON.stringify(timings)
 			// result = selenium_driver.Performance(true);
-			result = selenium_driver.Performance(false);
+			result = selenium_driver.Performance(performanceScript, false);
 			var dic = new Dictionary<string, object>();
 
 			foreach (var row in result) {
@@ -159,7 +162,8 @@ namespace WebTester
 			selenium_driver.WaitDocumentReadyState(expected_states);
 
 			// experimental - process JSON.stringify(timings)
-			List<Dictionary<String, String>> result = selenium_driver.Performance(true);
+			String performanceScript = GetScriptContent(@"Data\timing.min.js");
+			List<Dictionary<String, String>> result = selenium_driver.Performance(performanceScript, true);
 			// List<Dictionary<String, String>> result = selenium_driver.Performance();
 			var dic = new Dictionary<string, object>();
 
@@ -199,10 +203,10 @@ namespace WebTester
 
 			if (selenium_driver != null)
 				try {
-					selenium_driver.Close();
-				} catch (WebDriverException) {
-					// ignore
-				}
+				selenium_driver.Close();
+			} catch (WebDriverException) {
+				// ignore
+			}
 			selenium_driver.Quit();
 		}
 
@@ -225,6 +229,12 @@ namespace WebTester
 			}
 		}
 
+		protected static String GetScriptContent(String scriptName ) {
+			String  path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), scriptName);
+			String [] lines = File.ReadAllLines(path);
+			return String.Join("\n",lines);
+		}
+		
 		public static void createTable()
 		{
 			using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {

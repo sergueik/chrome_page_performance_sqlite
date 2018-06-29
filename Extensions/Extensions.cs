@@ -147,7 +147,8 @@ if (ua.match(/PhantomJS/)) {
 			return (T)((IJavaScriptExecutor)driver).ExecuteScript(script);
 		}
 
-		public static List<Dictionary<String, String>> Performance(this IWebDriver driver, Boolean stringify = false)
+		
+		public static List<Dictionary<String, String>> Performance(this IWebDriver driver, String script = null , Boolean stringify = false)
 		{
 			// NOTE: this code is highly browser-specific:
 			// Chrome has performance.getEntries
@@ -155,13 +156,15 @@ if (ua.match(/PhantomJS/)) {
 			// PhantomJS does not have anything
 			// System.InvalidOperationException: {"errorMessage":"undefined is not a constructor..
 
-			String script = oldScript;
+			// String script = oldScript;
 			List<Dictionary<String, String>> result = new List<Dictionary<string, string>>();
 			var row = new Dictionary<String, String>();
 			var dic = new Dictionary<String, Object>();
 			
 			if (stringify) { 
-				script = performanceNetworkScript;
+				if (script == null || script.Length == 0 ){
+					script = performanceNetworkScript;
+				}
 				// with old script,
 				// System.InvalidCastException: Unable to cast object of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Object]' to type 'System.String'.
 
@@ -229,7 +232,9 @@ if (ua.match(/PhantomJS/)) {
 					}
 				}
 			} else {
-				script = performanceNetworkScriptNoStringify;
+				if (script == null || script.Length == 0 ){
+					script = performanceNetworkScriptNoStringify;
+				}
 				IEnumerable<Object> rawObject = null;
 				try {
 					rawObject = driver.Execute<IEnumerable<Object>>(script);
