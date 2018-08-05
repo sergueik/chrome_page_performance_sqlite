@@ -4,7 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+// temporarily commented out to compile project on the system without Visual Studio
+// using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Microsoft.Activities.UnitTesting;
 using System.IO;
@@ -34,12 +35,12 @@ if (ua.match(/PhantomJS/)) {
         window.msPerformance ||
         window.webkitPerformance || {};
 
-    if (ua.match(/Chrome/)) {
+    if (ua.match(/Chrome|Edge/)) {
 	/* provides page element-granula inforation */
         var network = performance.getEntries() || {};
         return network;
     } else {
-	    /* Firefox and Internet Explorer provide load times of the whole page only */
+	    /* Firefox and Internet Explorer and Edge provide load times of the whole page only */
         var timings = performance.timing || {};
         return [timings];
     }

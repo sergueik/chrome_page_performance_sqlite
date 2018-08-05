@@ -134,6 +134,24 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\packages\Selenium.WebDriver.MicrosoftWebDriver.10.0.15063\driver\MicrosoftWebDriver.exe">
+      <Link>MicrosoftWebDriver.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\packages\WebDriver.IEDriverServer.win32.3.9.0\content\IEDriverServer.exe">
+      <Link>IEDriverServer.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\packages\Selenium.WebDriver.ChromeDriver.2.41.0\driver\win32\chromedriver.exe">
+      <Link>chromedriver.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\packages\Selenium.Firefox.WebDriver.0.21.0\driver\geckodriver.exe">
+      <Link>geckodriver.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Extensions\Extensions.csproj">
       <Project>{89A8AC9F-D431-4B56-A4B5-2021EDC95AF2}</Project>
       <Name>Extensions</Name>
@@ -155,12 +173,17 @@
   </Target>
   -->
   <PropertyGroup>
+	  <!-- commented out, not working 
+The service cannot be started, either because it is disabled or because it has no enabled devices associated with it.
+
     <PreBuildEvent>tasklist.exe /FI "IMAGENAME EQ chromedriver.exe" | findstr /i chromedriver.exe &gt; NUL 2&gt;NUL
 if ERRORLEVEL 1 goto :NEXT
 taskkill.exe /F /IM chromedriver.exe &gt; NUL 2&gt;NUL
 :NEXT
 exit 0
 </PreBuildEvent>
+
+-->
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>
@@ -169,12 +192,12 @@ exit 0
 
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.108.0\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
-    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.40.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.41.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
     <Copy SourceFiles="..\Data\timing.min.js" DestinationFolder="$(OutputPath)\Data" />
   </Target>
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.108.0\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
-    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.40.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.2.41.0\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
     <Copy SourceFiles="..\Data\timing.min.js" DestinationFolder="$(OutputPath)\Data" />
   </Target>
 </Project>

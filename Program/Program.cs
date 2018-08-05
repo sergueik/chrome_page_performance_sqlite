@@ -2,7 +2,8 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+// temporarily commented out to compile project on the system without Visual Studio
+// using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Microsoft.Activities.UnitTesting;
 using System.Data.SQLite;
@@ -12,12 +13,13 @@ using System.Reflection;
 
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
 namespace WebTester
 {
-	[TestClass]
+	//	[TestClass]
 	// [DeploymentItem(@"x86\SQLite.Interop.dll", "x86")]
 	public class Monitor
 	{
@@ -62,13 +64,14 @@ namespace WebTester
 			get { return useRemoteDriver; }
 			set { useRemoteDriver = value; }
 		}
-		private static Boolean useHeadlessDriver = true;
+		private static Boolean useHeadlessDriver = false;
 
 		public static Boolean UseHeadlessDriver {
 			get { return useHeadlessDriver; }
 			set { useHeadlessDriver = value; }
 		}
 
+		/*
 		[TestInitialize]
 		public void Initialize()
 		{
@@ -84,9 +87,24 @@ namespace WebTester
 					chromeOptions.AddArgument("--headless");
 					selenium_driver = new ChromeDriver(chromeOptions);
 				} else {
-					selenium_driver = new ChromeDriver();
+			//		selenium_driver = new ChromeDriver();
+				#region Edge-specific
+				try {
+					// location for MicrosoftWebDriver.exe
+					string serverPath = System.IO.Directory.GetCurrentDirectory();
+					EdgeOptions edgeOptions = new EdgeOptions();
+					System.Environment.SetEnvironmentVariable("webdriver.edge.driver", String.Format(@"{0}\MicrosoftWebDriver.exe", serverPath));
+					edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
+					selenium_driver = new EdgeDriver(serverPath, edgeOptions);
+				} catch (Exception e) { 
+					Console.WriteLine(e.Message); 
+				} finally {
+				} 
 				}
+#endregion
 			}
+			// Set page load timeout to 5 seconds
+			selenium_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
 			selenium_driver.Manage().Timeouts().ImplicitWait = new System.TimeSpan(0, 0, 30);
 		}
 
@@ -131,6 +149,7 @@ namespace WebTester
 				Console.Error.WriteLine("");
 			}
 		}
+		*/
 		public static void Main(string[] args)
 		{
 			dataFolderPath = Directory.GetCurrentDirectory();
@@ -151,8 +170,21 @@ namespace WebTester
 					chromeOptions.AddArgument("--headless");
 					selenium_driver = new ChromeDriver(chromeOptions);
 				} else {
-					selenium_driver = new ChromeDriver();
-				}
+					//		selenium_driver = new ChromeDriver();
+					#region Edge-specific
+					try {
+						// location for MicrosoftWebDriver.exe
+						string serverPath = System.IO.Directory.GetCurrentDirectory();
+						EdgeOptions edgeOptions = new EdgeOptions();
+						System.Environment.SetEnvironmentVariable("webdriver.edge.driver", String.Format(@"{0}\MicrosoftWebDriver.exe", serverPath));
+						edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
+						selenium_driver = new EdgeDriver(serverPath, edgeOptions);
+					} catch (Exception e) { 
+						Console.WriteLine(e.Message); 
+					} finally {
+					} 
+					#endregion
+				}	
 			}
 			selenium_driver.Manage().Timeouts().ImplicitWait = new System.TimeSpan(0, 0, 30);
 
@@ -203,10 +235,10 @@ namespace WebTester
 
 			if (selenium_driver != null)
 				try {
-				selenium_driver.Close();
-			} catch (WebDriverException) {
-				// ignore
-			}
+					selenium_driver.Close();
+				} catch (WebDriverException) {
+					// ignore
+				}
 			selenium_driver.Quit();
 		}
 
@@ -229,10 +261,11 @@ namespace WebTester
 			}
 		}
 
-		protected static String GetScriptContent(String scriptName ) {
-			String  path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), scriptName);
-			String [] lines = File.ReadAllLines(path);
-			return String.Join("\n",lines);
+		protected static String GetScriptContent(String scriptName)
+		{
+			String path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), scriptName);
+			String[] lines = File.ReadAllLines(path);
+			return String.Join("\n", lines);
 		}
 		
 		public static void createTable()
