@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 using System.Linq;
 // temporarily commented out to compile project on the system without Visual Studio
-// using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Microsoft.Activities.UnitTesting;
 using System.IO;

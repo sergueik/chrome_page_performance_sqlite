@@ -173,17 +173,16 @@
   </Target>
   -->
   <PropertyGroup>
-	  <!-- commented out, not working 
+	  <!-- temporarily commented out, TODO: debug 
+	       not working with
 The service cannot be started, either because it is disabled or because it has no enabled devices associated with it.
-
+-->
     <PreBuildEvent>tasklist.exe /FI "IMAGENAME EQ chromedriver.exe" | findstr /i chromedriver.exe &gt; NUL 2&gt;NUL
 if ERRORLEVEL 1 goto :NEXT
 taskkill.exe /F /IM chromedriver.exe &gt; NUL 2&gt;NUL
 :NEXT
 exit 0
 </PreBuildEvent>
-
--->
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>

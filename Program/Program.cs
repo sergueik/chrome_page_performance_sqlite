@@ -2,8 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
-// temporarily commented out to compile project on the system without Visual Studio
-// using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Microsoft.Activities.UnitTesting;
 using System.Data.SQLite;
@@ -19,7 +18,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace WebTester
 {
-	//	[TestClass]
+	[TestClass]
 	// [DeploymentItem(@"x86\SQLite.Interop.dll", "x86")]
 	public class Monitor
 	{
@@ -71,7 +70,6 @@ namespace WebTester
 			set { useHeadlessDriver = value; }
 		}
 
-		/*
 		[TestInitialize]
 		public void Initialize()
 		{
@@ -85,23 +83,27 @@ namespace WebTester
 				if (useHeadlessDriver) {
 					var chromeOptions = new ChromeOptions();
 					chromeOptions.AddArgument("--headless");
+					chromeOptions.AddArgument("--window-size=1200x800");
+					chromeOptions.AddArgument("--disable-gpu");
 					selenium_driver = new ChromeDriver(chromeOptions);
 				} else {
-			//		selenium_driver = new ChromeDriver();
-				#region Edge-specific
-				try {
-					// location for MicrosoftWebDriver.exe
-					string serverPath = System.IO.Directory.GetCurrentDirectory();
-					EdgeOptions edgeOptions = new EdgeOptions();
-					System.Environment.SetEnvironmentVariable("webdriver.edge.driver", String.Format(@"{0}\MicrosoftWebDriver.exe", serverPath));
-					edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
-					selenium_driver = new EdgeDriver(serverPath, edgeOptions);
-				} catch (Exception e) { 
-					Console.WriteLine(e.Message); 
-				} finally {
-				} 
+					selenium_driver = new ChromeDriver();
+					/*
+					#region Edge-specific
+					try {
+						// location for MicrosoftWebDriver.exe
+						string serverPath = System.IO.Directory.GetCurrentDirectory();
+						EdgeOptions edgeOptions = new EdgeOptions();
+						System.Environment.SetEnvironmentVariable("webdriver.edge.driver", String.Format(@"{0}\MicrosoftWebDriver.exe", serverPath));
+						edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
+						selenium_driver = new EdgeDriver(serverPath, edgeOptions);
+					} catch (Exception e) { 
+						Console.WriteLine(e.Message); 
+					} finally {
+					} 
+					#endregion
+					*/
 				}
-#endregion
 			}
 			// Set page load timeout to 5 seconds
 			selenium_driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
@@ -149,7 +151,7 @@ namespace WebTester
 				Console.Error.WriteLine("");
 			}
 		}
-		*/
+
 		public static void Main(string[] args)
 		{
 			dataFolderPath = Directory.GetCurrentDirectory();
@@ -168,9 +170,12 @@ namespace WebTester
 				if (useHeadlessDriver) {
 					var chromeOptions = new ChromeOptions();
 					chromeOptions.AddArgument("--headless");
+					chromeOptions.AddArgument("--window-size=1200x800");
+					chromeOptions.AddArgument("--disable-gpu");
 					selenium_driver = new ChromeDriver(chromeOptions);
 				} else {
-					//		selenium_driver = new ChromeDriver();
+					selenium_driver = new ChromeDriver();
+					/*
 					#region Edge-specific
 					try {
 						// location for MicrosoftWebDriver.exe
@@ -184,6 +189,7 @@ namespace WebTester
 					} finally {
 					} 
 					#endregion
+					*/
 				}	
 			}
 			selenium_driver.Manage().Timeouts().ImplicitWait = new System.TimeSpan(0, 0, 30);
