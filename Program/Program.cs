@@ -8,7 +8,10 @@ using Microsoft.Activities.UnitTesting;
 using System.Data.SQLite;
 using SQLite.Utils;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
 
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -48,7 +51,6 @@ namespace WebTester
 			set { dataFolderPath = value; }
 		}
 
-
 		private static string[] expected_states = { "interactive", "complete" };
 		// unused
 		// private static int max_cnt = 10;
@@ -71,14 +73,32 @@ namespace WebTester
 		}
 
 		[TestInitialize]
-		public void Initialize()
-		{
+		public void Initialize() {
 			database = String.Format(@"{0}\{1}", dataFolderPath, databaseName);
 			dataSource = "data source=" + database;
 			tableName = "product";
 			createTable();
 			if (useRemoteDriver) {
-				selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+				Dictionary<string,object> requested = new Dictionary<string,object>();
+				requested.Add("browserName","chrome");
+				requested.Add("version",string.Empty);
+				requested.Add("platform", "windows");
+				requested.Add("javaScript",true);
+				#pragma warning disable 618
+				var desiredCapabilities =
+					new DesiredCapabilities(requested);
+				/*
+				 	SharpDevelopdoes not recognize VS 7 syntax
+					new DesiredCapabilities(
+						new Dictionary<string,object>(){
+							["browserName","chrome"],
+							["version",string.Empty],
+							["platform", "windows"],
+							["javaScript",true]
+						});
+				*/
+				selenium_driver = new RemoteWebDriver(new Uri(hub_url), desiredCapabilities);
+				#pragma warning restore 618
 			} else {
 				if (useHeadlessDriver) {
 					var chromeOptions = new ChromeOptions();
@@ -165,7 +185,30 @@ namespace WebTester
 			// TestConnection();
 			createTable();
 			if (useRemoteDriver) {
-				selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
+				
+								Dictionary<string,object> requested = new Dictionary<string,object>();
+				requested.Add("browserName","chrome");
+				requested.Add("version",string.Empty);
+				requested.Add("platform", "windows");
+				requested.Add("javaScript",true);
+				#pragma warning disable 618
+				var desiredCapabilities =
+					new DesiredCapabilities(requested);
+				/*
+				 	SharpDevelopdoes not recognize VS 7 syntax
+					new DesiredCapabilities(
+						new Dictionary<string,object>(){
+							["browserName","chrome"],
+							["version",string.Empty],
+							["platform", "windows"],
+							["javaScript",true]
+						});
+				*/
+				
+				selenium_driver = new RemoteWebDriver(new Uri(hub_url), desiredCapabilities);
+				#pragma warning restore 618
+				// 'OpenQA.Selenium.Remote.DesiredCapabilities' does not contain a definition for 'Chrome' (CS0117)
+				// selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
 			} else {
 				if (useHeadlessDriver) {
 					var chromeOptions = new ChromeOptions();

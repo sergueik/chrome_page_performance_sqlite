@@ -20,11 +20,12 @@ namespace WebTester
 	public static class Extensions
 	{
 		private static bool useJSONLibrary = true;
-		private static bool useStrongTyped = true;
+		private static bool useStrongTyped = false; // Newtonsoft.Json.JsonReaderException 
 		private static int cnt = 0;
 		private static Regex regex;
 		private static MatchCollection matches;
-		private static string oldScript = @"
+		#pragma warning disable 414
+		onst string oldScript = @"
 var ua = window.navigator.userAgent;
 if (ua.match(/PhantomJS/)) {
     return [{}];
@@ -46,10 +47,10 @@ if (ua.match(/PhantomJS/)) {
     }
 }
 ";
+		#pragma warning restore 414
 		// see also: https://github.com/addyosmani/timing.js/blob/master/timing.js
 		// for timings.loadTime,timings.domReadyTime  etc.
-		private static string libraryScript = @"
-            	
+		const string libraryScript = @"	
 (function(window) {
   'use strict';
   window.timing = window.timing || {
@@ -82,15 +83,12 @@ if (ua.match(/PhantomJS/)) {
   }
 })(typeof window !== 'undefined' ? window : {});";
 
-
 		private static string performanceTimerScript = String.Format(
 			                                               "{0}\nreturn window.timing.getTimes();", libraryScript);
-
 		private static string performanceNetworkScript = String.Format(
-			                                                 "{0}\nreturn window.timing.getNetwork({1});", libraryScript, "{stringify:true}");
+			                                               "{0}\nreturn window.timing.getNetwork({1});", libraryScript, "{stringify:true}");
 		private static string performanceNetworkScriptNoStringify = String.Format(
-		
-			                                                            "{0}\nreturn window.timing.getNetwork();", libraryScript);
+			                                               "{0}\nreturn window.timing.getNetwork();", libraryScript);
 		private static Boolean stringify;
 
 		public static Boolean Stringify {
@@ -98,8 +96,7 @@ if (ua.match(/PhantomJS/)) {
 			set { stringify = value; }
 		}
 
-		public static List<String> SplitDataRows(string payload, string matchPattern, int maxRows = 0)
-		{
+		public static List<String> SplitDataRows(string payload, string matchPattern, int maxRows = 0){
 			var result = new List<String>();
 			String[] resultArray = { };
 			regex = new Regex(matchPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -117,12 +114,11 @@ if (ua.match(/PhantomJS/)) {
 			return result;
 		}
 
-		public static Dictionary<String, String> FindData(this string payload)
-		{
+		public static Dictionary<String, String> FindData(this string payload) {
 			var result = new Dictionary<String, String>();
 			string key = null;
 			string val = null;
-			regex = new Regex(@"""(?<key>[^""]+)"" *: *""?(?<val>.*)""?", 
+			regex = new Regex(@"""(?<key>[^""]+)"" *: *""?(?<val>.*)""?",
 				RegexOptions.IgnoreCase | RegexOptions.Compiled);
 			matches = regex.Matches(payload);
 			foreach (Match match in matches) {
@@ -143,8 +139,7 @@ if (ua.match(/PhantomJS/)) {
 			return result;
 		}
 
-		public static T Execute<T>(this IWebDriver driver, string script)
-		{
+		public static T Execute<T>(this IWebDriver driver, string script){
 			return (T)((IJavaScriptExecutor)driver).ExecuteScript(script);
 		}
 
@@ -162,8 +157,8 @@ if (ua.match(/PhantomJS/)) {
 			var row = new Dictionary<String, String>();
 			var dic = new Dictionary<String, Object>();
 			
-			if (stringify) { 
-				if (script == null || script.Length == 0 ){
+			if (stringify) {
+				if (string.IsNullOrEmpty(script) ){
 					script = performanceNetworkScript;
 				}
 				// with old script,
@@ -183,6 +178,7 @@ if (ua.match(/PhantomJS/)) {
 					if (useJSONLibrary) {
 						if (useStrongTyped) {
 							// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_JsonConvert.htm
+							// JsonReaderException
 							var jsonNetworkTimingData = JsonConvert.DeserializeObject(rawData, typeof(List<NetworkTiming>)) as List<NetworkTiming>;
 							foreach (NetworkTiming rowNetworkTiming in jsonNetworkTimingData) {
 								Console.Error.WriteLine(rowNetworkTiming.ToString());
@@ -199,8 +195,8 @@ if (ua.match(/PhantomJS/)) {
 								dic.Clear();
 								// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JToken.htm
 								dic = jsonToken.ToObject(typeof(Dictionary<String,Object>)) as Dictionary<String, Object>;
-							} catch (JsonReaderException e) {
-								// 
+							} catch (JsonReaderException) {
+								//
 							}
 							if (dic.Keys.Count > 0) {
 								row.Clear();
@@ -222,11 +218,15 @@ if (ua.match(/PhantomJS/)) {
 					
 						String[] columnsArray = Regex.Split(Regex.Replace(rawDataRow, "[\\]{}\\[]", ""), " *, *");
 						row = new Dictionary<String, String>();
-						Dictionary<String, String> dic2 = new Dictionary<String, String>();
+						var dic2 = new Dictionary<String, String>();
 						foreach (String columnData in columnsArray) {
 							dic2 = FindData(columnData);
 							foreach (String key in dic2.Keys) {
+								try {
 								row.Add(key, dic2[key]);
+								} catch (System.ArgumentException ){ // An item with the same key has already been added.
+									// ignore
+								}
 							}
 						}
 						result.Add(row);
