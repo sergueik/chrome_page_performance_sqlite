@@ -20,12 +20,17 @@ namespace WebTester
 	public static class Extensions
 	{
 		private static bool useJSONLibrary = true;
-		private static bool useStrongTyped = false; // Newtonsoft.Json.JsonReaderException 
+		private static bool useStrongTyped = true; 
 		private static int cnt = 0;
+		private static Boolean debug = false;
+		public static Boolean Debug {
+			get { return debug; }
+			set { debug = value; }
+		}
 		private static Regex regex;
 		private static MatchCollection matches;
 		#pragma warning disable 414
-		onst string oldScript = @"
+		const string oldScript = @"
 var ua = window.navigator.userAgent;
 if (ua.match(/PhantomJS/)) {
     return [{}];
@@ -161,16 +166,18 @@ if (ua.match(/PhantomJS/)) {
 				if (string.IsNullOrEmpty(script) ){
 					script = performanceNetworkScript;
 				}
-				// with old script,
+				// with old script, possible to encounter
 				// System.InvalidCastException: Unable to cast object of type 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Object]' to type 'System.String'.
 
 				String rawData = "";
 				try {
 					script = performanceNetworkScript;
 					rawData = driver.Execute<String>(script);
-					Console.Error.WriteLine("Raw data: \n{0}", rawData);
+					if(debug) {
+					 	Console.Error.WriteLine("Raw data: \n{0}", rawData);
+					}
 				} catch (System.InvalidCastException e) {
-					Console.Error.WriteLine("Exception (ignored) :" + e.ToString());
+					Console.Error.WriteLine("Exception (ignored): " + e.ToString());
 				}
 				int maxRows = 50;
 				if (rawData.Length > 0) {
@@ -178,8 +185,13 @@ if (ua.match(/PhantomJS/)) {
 					if (useJSONLibrary) {
 						if (useStrongTyped) {
 							// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_JsonConvert.htm
-							// JsonReaderException
-							var jsonNetworkTimingData = JsonConvert.DeserializeObject(rawData, typeof(List<NetworkTiming>)) as List<NetworkTiming>;
+							var jsonNetworkTimingData = new List<NetworkTiming> ();
+							try {
+								jsonNetworkTimingData = JsonConvert.DeserializeObject(rawData, typeof(List<NetworkTiming>)) as List<NetworkTiming>;
+							} catch (JsonReaderException e) {
+								Console.Error.WriteLine("Cannot deserialize:\n" + rawData );
+								Console.Error.WriteLine("Exception (ignored): " + e.ToString());								
+							}
 							foreach (NetworkTiming rowNetworkTiming in jsonNetworkTimingData) {
 								Console.Error.WriteLine(rowNetworkTiming.ToString());
 							}
@@ -190,13 +202,15 @@ if (ua.match(/PhantomJS/)) {
 						JToken jsonToken;
 						while (jsonDataTokenEnumerator.MoveNext()) {
 							jsonToken = jsonDataTokenEnumerator.Current;
-							Console.Error.WriteLine(jsonToken.ToString());
+							if (debug) {
+								Console.Error.WriteLine("Adding: " + jsonToken.ToString());
+							}
 							try {
 								dic.Clear();
 								// https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JToken.htm
 								dic = jsonToken.ToObject(typeof(Dictionary<String,Object>)) as Dictionary<String, Object>;
 							} catch (JsonReaderException) {
-								//
+								// ignore
 							}
 							if (dic.Keys.Count > 0) {
 								row.Clear();
@@ -223,8 +237,9 @@ if (ua.match(/PhantomJS/)) {
 							dic2 = FindData(columnData);
 							foreach (String key in dic2.Keys) {
 								try {
-								row.Add(key, dic2[key]);
-								} catch (System.ArgumentException ){ // An item with the same key has already been added.
+									row.Add(key, dic2[key]);
+								} catch (System.ArgumentException ){ 
+									// An item with the same key has already been added.
 									// ignore
 								}
 							}
@@ -233,7 +248,7 @@ if (ua.match(/PhantomJS/)) {
 					}
 				}
 			} else {
-				if (script == null || script.Length == 0 ){
+				if (string.IsNullOrEmpty(script)){
 					script = performanceNetworkScriptNoStringify;
 				}
 				IEnumerable<Object> rawObject = null;

@@ -57,7 +57,9 @@ namespace WebTester
 		private static string tableName = "";
 		private static string database;
 		private static string dataSource;
+		#pragma warning disable 169
 		private static Object forever;
+		#pragma warning restore 169
 		private static Boolean waiting = false;
 		private static Boolean useRemoteDriver = false;
 
@@ -150,28 +152,33 @@ namespace WebTester
 			// result = selenium_driver.Performance(true);
 			result = selenium_driver.Performance(performanceScript, false);
 			var dic = new Dictionary<string, object>();
+			var urls = new List<string>();
 
 			foreach (var row in result) {
 				dic["caption"] = "dummy";
 				foreach (string key in row.Keys) {
 					if (Regex.IsMatch(key, "(name|duration)")) {
 						Console.Error.WriteLine(key + " " + row[key]);
-						if (key.IndexOf("duration") > -1) {
-							dic[key] = (Double)Double.Parse(row[key]);
-						} else {
-							dic[key] = (String)row[key];
-						}
+						// Type of conditional expression cannot be determined because there is no implicit conversion between 'double' and 'string' (CS0173)
+						dic[key] = (key.Equals("duration")) ? 
+							(Object)((Double)Double.Parse(row[key])):
+							(Object)((String)row[key]);
 					}
 				}
-				insert(dic);
-
-				foreach (string key in dic.Keys.ToArray()) {
-					dic[key] = null;
+				String url = dic["name"].ToString();
+				if (!urls.Contains(url)) {
+					urls.Add(url);
+					insert(dic);
+				} else {
+					Console.Error.WriteLine("Skipping duplicate url: " + url);
 				}
-				Console.Error.WriteLine("");
 			}
-		}
 
+			foreach (string key in dic.Keys.ToArray()) {
+					dic[key] = null;
+			}
+			Console.Error.WriteLine("");
+		}
 		public static void Main(string[] args)
 		{
 			dataFolderPath = Directory.GetCurrentDirectory();
@@ -184,9 +191,8 @@ namespace WebTester
 			Console.WriteLine("Starting..");
 			// TestConnection();
 			createTable();
-			if (useRemoteDriver) {
-				
-								Dictionary<string,object> requested = new Dictionary<string,object>();
+			if (useRemoteDriver) {	
+				Dictionary<string,object> requested = new Dictionary<string,object>();
 				requested.Add("browserName","chrome");
 				requested.Add("version",string.Empty);
 				requested.Add("platform", "windows");
@@ -247,20 +253,34 @@ namespace WebTester
 			List<Dictionary<String, String>> result = selenium_driver.Performance(performanceScript, true);
 			// List<Dictionary<String, String>> result = selenium_driver.Performance();
 			var dic = new Dictionary<string, object>();
+			var urls = new List<string>();
 
 			foreach (var row in result) {
 				dic["caption"] = "dummy";
 				foreach (string key in row.Keys) {
 					if (Regex.IsMatch(key, "(name|duration)")) {
-						Console.Error.WriteLine(key + " " + row[key]);
-						if (key.IndexOf("duration") > -1) {
-							dic[key] = (Double)Double.Parse(row[key]);
-						} else {
-							dic[key] = (String)row[key];
-						}
+						// NOTE: duplicate urls will be dropped
+						Console.Error.WriteLine(key + " " + row[key]);						
+						// Type of conditional expression cannot be determined because there is no implicit conversion between 'double' and 'string' (CS0173)
+						dic[key] = (key.Equals("duration")) ? 
+							(Object)((Double)Double.Parse(row[key])):
+							(Object)((String)row[key]);
+						/*
+							if (key.IndexOf("duration") > -1) {
+								dic[key] = (Double)Double.Parse(row[key]);
+							} else {
+								dic[key] = (String)row[key];
+							}
+						*/
 					}
 				}
-				insert(dic);
+				String url = dic["name"].ToString();
+				if (!urls.Contains(url)) {
+					urls.Add(url);
+					insert(dic);
+				} else {
+					Console.Error.WriteLine("Skipping duplicate url: " + url);
+				}
 
 				foreach (string key in dic.Keys.ToArray()) {
 					dic[key] = null;
@@ -310,15 +330,13 @@ namespace WebTester
 			}
 		}
 
-		protected static String GetScriptContent(String scriptName)
-		{
+		protected static String GetScriptContent(String scriptName) {
 			String path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), scriptName);
 			String[] lines = File.ReadAllLines(path);
 			return String.Join("\n", lines);
 		}
 		
-		public static void createTable()
-		{
+		public static void createTable() {
 			using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
 				using (SQLiteCommand cmd = new SQLiteCommand()) {
 					cmd.Connection = conn;
@@ -338,8 +356,7 @@ namespace WebTester
 		}
 		// https://stackoverflow.com/questions/203246/how-can-i-keep-a-console-open-until-cancelkeypress-event-is-fired
 		// https://msdn.microsoft.com/en-us/library/system.console.cancelkeypress.aspx
-		static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
-		{
+		static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
 			Console.WriteLine("Stopping");
 			System.Threading.Thread.Sleep(1);
 			e.Cancel = true;

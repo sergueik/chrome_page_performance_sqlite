@@ -4,10 +4,8 @@ using System.Text;
 using System.Data;
 using System.Data.SQLite;
 
-namespace SQLite.Utils
-{
-    public enum ColType
-    {
+namespace SQLite.Utils {
+    public enum ColType {
         Text,
         DateTime,
         Integer,
@@ -15,29 +13,24 @@ namespace SQLite.Utils
         BLOB
     }
 
-    public class SQLiteHelper
-    {
+    public class SQLiteHelper {
         SQLiteCommand cmd = null;
 
-        public SQLiteHelper(SQLiteCommand command)
-        {
+        public SQLiteHelper(SQLiteCommand command) {
             cmd = command;
         }
 
         #region DB Info
 
-        public DataTable GetTableStatus()
-        {
+        public DataTable GetTableStatus() {
             return Select("SELECT * FROM sqlite_master;");
         }
 
-        public DataTable GetTableList()
-        {
+        public DataTable GetTableList() {
             DataTable dt = GetTableStatus();
             DataTable dt2 = new DataTable();
             dt2.Columns.Add("Tables");
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
+            for (int i = 0; i < dt.Rows.Count; i++) {
                 string t = dt.Rows[i]["name"] + "";
                 if (t != "sqlite_sequence")
                     dt2.Rows.Add(t);
@@ -45,13 +38,11 @@ namespace SQLite.Utils
             return dt2;
         }
 
-        public DataTable GetColumnStatus(string tableName)
-        {
+        public DataTable GetColumnStatus(string tableName) {
             return Select(string.Format("PRAGMA table_info(`{0}`);", tableName));
         }
 
-        public DataTable ShowDatabase()
-        {
+        public DataTable ShowDatabase() {
             return Select("PRAGMA database_list;");
         }
 
@@ -59,112 +50,91 @@ namespace SQLite.Utils
 
         #region Query
 
-        public void BeginTransaction()
-        {
+        public void BeginTransaction() {
             cmd.CommandText = "begin transaction;";
             cmd.ExecuteNonQuery();
         }
 
-        public void Commit()
-        {
+        public void Commit() {
             cmd.CommandText = "commit;";
             cmd.ExecuteNonQuery();
         }
 
-        public void Rollback()
-        {
+        public void Rollback() {
             cmd.CommandText = "rollback";
             cmd.ExecuteNonQuery();
         }
 
-        public DataTable Select(string sql)
-        {
+        public DataTable Select(string sql) {
             return Select(sql, new List<SQLiteParameter>());
         }
 
-        public DataTable Select(string sql, Dictionary<string, object> dicParameters = null)
-        {
+        public DataTable Select(string sql, Dictionary<string, object> dicParameters = null) {
             List<SQLiteParameter> lst = GetParametersList(dicParameters);
             return Select(sql, lst);
         }
 
-        public DataTable Select(string sql, IEnumerable<SQLiteParameter> parameters = null)
-        {
+        public DataTable Select(string sql, IEnumerable<SQLiteParameter> parameters = null) {
             cmd.CommandText = sql;
-            if (parameters != null)
-            {
-                foreach (var param in parameters)
-                {
+            if (parameters != null) {
+                foreach (var param in parameters) {
                     cmd.Parameters.Add(param);
                 }
             }
-            SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
-            DataTable dt = new DataTable();
+            var da = new SQLiteDataAdapter(cmd);
+            var dt = new DataTable();
             da.Fill(dt);
             return dt;
         }
 
-        public void Execute(string sql)
-        {
+        public void Execute(string sql) {
             Execute(sql, new List<SQLiteParameter>());
         }
 
-        public void Execute(string sql, Dictionary<string, object> dicParameters = null)
-        {
-            List<SQLiteParameter> lst = GetParametersList(dicParameters);
-            Execute(sql, lst);
+        public void Execute(string sql, Dictionary<string, object> dicParameters = null) {
+            List<SQLiteParameter> parameterList = GetParametersList(dicParameters);
+            Execute(sql, parameterList);
         }
 
-        public void Execute(string sql, IEnumerable<SQLiteParameter> parameters = null)
-        {
+        public void Execute(string sql, IEnumerable<SQLiteParameter> parameters = null) {
             cmd.CommandText = sql;
-            if (parameters != null)
-            {
-                foreach (var param in parameters)
-                {
+            if (parameters != null) {
+                foreach (var param in parameters) {
                     cmd.Parameters.Add(param);
                 }
             }
             cmd.ExecuteNonQuery();
         }
 
-        public object ExecuteScalar(string sql)
-        {
+        public object ExecuteScalar(string sql) {
             cmd.CommandText = sql;
             return cmd.ExecuteScalar();
         }
 
-        public object ExecuteScalar(string sql, Dictionary<string, object> dicParameters = null)
-        {
+        public object ExecuteScalar(string sql, Dictionary<string, object> dicParameters = null) {
             List<SQLiteParameter> lst = GetParametersList(dicParameters);
             return ExecuteScalar(sql, lst);
         }
 
-        public object ExecuteScalar(string sql, IEnumerable<SQLiteParameter> parameters = null)
-        {
+        public object ExecuteScalar(string sql, IEnumerable<SQLiteParameter> parameters = null) {
             cmd.CommandText = sql;
-            if (parameters != null)
-            {
-                foreach (var parameter in parameters)
-                {
+            if (parameters != null) {
+                foreach (var parameter in parameters) {
                     cmd.Parameters.Add(parameter);
                 }
             }
             return cmd.ExecuteScalar();
         }
 
-        public dataType ExecuteScalar<dataType>(string sql, Dictionary<string, object> dicParameters = null)
-        {
-            List<SQLiteParameter> lst = null;
-            if (dicParameters != null)
-            {
-                lst = new List<SQLiteParameter>();
-                foreach (KeyValuePair<string, object> kv in dicParameters)
-                {
-                    lst.Add(new SQLiteParameter(kv.Key, kv.Value));
+        public dataType ExecuteScalar<dataType>(string sql, Dictionary<string, object> dicParameters = null) {
+            List<SQLiteParameter> parameterList = null;
+            if (dicParameters != null) {
+                parameterList = new List<SQLiteParameter>();
+                foreach (KeyValuePair<string, object> o in dicParameters) {
+                    parameterList.Add(new SQLiteParameter(o.Key, o.Value));
                 }
             }
-            return ExecuteScalar<dataType>(sql, lst);
+            return ExecuteScalar<dataType>(sql, parameterList);
         }
 
         public dataType ExecuteScalar<dataType>(string sql, IEnumerable<SQLiteParameter> parameters = null)
