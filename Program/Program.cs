@@ -81,7 +81,7 @@ namespace WebTester
 			tableName = "product";
 			createTable();
 			if (useRemoteDriver) {
-				Dictionary<string,object> requested = new Dictionary<string,object>();
+				var requested = new Dictionary<string,object>();
 				requested.Add("browserName","chrome");
 				requested.Add("version",string.Empty);
 				requested.Add("platform", "windows");
