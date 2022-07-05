@@ -126,7 +126,7 @@ List<Dictionary<String, String>> result = new List<Dictionary<string, string>>()
 String rawData = driver.Execute<String>(performanceNetworkScript);
 jsonNetworkTimingData = JsonConvert.DeserializeObject(rawData, typeof(List<NetworkTiming>)) as List<NetworkTiming>;
 ```
-The NetwotkTiming [class](https://github.com/sergueik/chrome_page_performance_sqlite/blob/master/Extensions/NetworkTiming.cs) is a data type to load Chrome idl entries.
+The NetworkTiming [class](https://github.com/sergueik/chrome_page_performance_sqlite/blob/master/Extensions/NetworkTiming.cs) is a data type to load Chrome idl entries.
 
 Another option is to directly parse of the `JSON.stringify()` returned value
 
