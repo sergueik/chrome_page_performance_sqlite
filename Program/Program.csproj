@@ -111,10 +111,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel.Activities" />
     <Reference Include="WebDriver">
-      <HintPath>..\packages\Selenium.WebDriver.3.14.0\lib\net45\WebDriver.dll</HintPath>
+      <HintPath>..\packages\Selenium.WebDriver.4.8.0\lib\net45\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver.Support">
-      <HintPath>..\packages\Selenium.Support.3.14.0\lib\net45\WebDriver.Support.dll</HintPath>
+      <HintPath>..\packages\Selenium.Support.4.8.0\lib\net45\WebDriver.Support.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data" />
@@ -130,7 +130,14 @@
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\packages\Selenium.Firefox.WebDriver.0.22.0\driver\geckodriver.exe">
+<!-- 
+NOTE: Unhandled WPF exception
+Exception thrown:
+System.ArgumentException: Illegal characters in path.  when the 
+typo in atribute:
+Include="..\packages\Selenium.Firefox.WebDriver.0.2	.0\driver\geckodriver.exe"
+-->
+    <None Include="..\packages\Selenium.Firefox.WebDriver.0.26.0\driver\geckodriver.exe">
       <Link>Properties\geckodriver.exe</Link>
     </None>
     <None Include="App.config">
@@ -140,7 +147,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\Selenium.WebDriver.ChromeDriver.103.0.5060.5300\driver\win32\chromedriver.exe">
+    <Content Include="..\packages\Selenium.WebDriver.ChromeDriver.109.0.5414.7400\driver\win32\chromedriver.exe">
       <Link>chromedriver.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -192,12 +199,12 @@ exit 0
   </PropertyGroup>
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
-    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.103.0.5060.5300\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.109.0.5414.7400\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
     <Copy SourceFiles="..\Data\timing.min.js" DestinationFolder="$(OutputPath)\Data" />
   </Target>
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
-    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.103.0.5060.5300\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.109.0.5414.7400\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
     <Copy SourceFiles="..\Data\timing.min.js" DestinationFolder="$(OutputPath)\Data" />
   </Target>
 </Project>

@@ -87,8 +87,20 @@ namespace WebTester
 				requested.Add("platform", "windows");
 				requested.Add("javaScript",true);
 				#pragma warning disable 618
-				var desiredCapabilities =
-					new DesiredCapabilities(requested);
+				// https://stackoverflow.com/questions/70366741/desiredcapabilities-is-inaccessible-due-to-its-protection-level
+				// https://support.smartbear.com/crossbrowsertesting/docs/automated-testing/frameworks/selenium/about/use-of-desiredcapabilities-has-been-deprecated.html
+				
+				
+				var chromeOptions = new ChromeOptions();
+
+				chromeOptions.PlatformName = "Windows";
+				chromeOptions.BrowserVersion = "109";
+				// chromeOptions.AddAdditionalCapability("javaScript", true, true);
+
+				selenium_driver = new RemoteWebDriver(new Uri(hub_url), chromeOptions);
+
+			//	var desiredCapabilities =
+			//		new DesiredCapabilities(requested);
 				/*
 				 	SharpDevelopdoes not recognize VS 7 syntax
 					new DesiredCapabilities(
@@ -99,7 +111,7 @@ namespace WebTester
 							["javaScript",true]
 						});
 				*/
-				selenium_driver = new RemoteWebDriver(new Uri(hub_url), desiredCapabilities);
+				// selenium_driver = new RemoteWebDriver(new Uri(hub_url), desiredCapabilities);
 				#pragma warning restore 618
 			} else {
 				if (useHeadlessDriver) {
@@ -198,8 +210,18 @@ namespace WebTester
 				requested.Add("platform", "windows");
 				requested.Add("javaScript",true);
 				#pragma warning disable 618
-				var desiredCapabilities =
-					new DesiredCapabilities(requested);
+				var chromeOptions = new ChromeOptions();
+
+				chromeOptions.PlatformName = "Windows";
+				chromeOptions.BrowserVersion = "109";
+				// chromeOptions.AddAdditionalCapability("javaScript", true, true);
+
+				selenium_driver = new RemoteWebDriver(new Uri(hub_url), chromeOptions);
+
+
+				
+				// var desiredCapabilities =
+				//	new DesiredCapabilities(requested);
 				/*
 				 	SharpDevelopdoes not recognize VS 7 syntax
 					new DesiredCapabilities(
@@ -211,7 +233,7 @@ namespace WebTester
 						});
 				*/
 				
-				selenium_driver = new RemoteWebDriver(new Uri(hub_url), desiredCapabilities);
+				// selenium_driver = new RemoteWebDriver(new Uri(hub_url), desiredCapabilities);
 				#pragma warning restore 618
 				// 'OpenQA.Selenium.Remote.DesiredCapabilities' does not contain a definition for 'Chrome' (CS0117)
 				// selenium_driver = new RemoteWebDriver(new Uri(hub_url), DesiredCapabilities.Chrome());
